@@ -26,7 +26,7 @@ from linebot.models import (
     StickerMessage, StickerSendMessage, LocationMessage, LocationSendMessage,
     ImageMessage, VideoMessage, AudioMessage,
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent,
-    ImagemapSendMessage, MessageImagemapAction
+    ImagemapSendMessage, MessageImagemapAction, BaseSize, ImagemapArea
 )
 
 app = Flask(__name__)
@@ -69,7 +69,7 @@ def callback():
 @app.route('/planning_poker/images/<size>', methods=['GET'])
 def images(size):
     app.logger.info("start")
-    return send_from_directory("./static/planning_poker", "pp-300.png")
+    return send_from_directory("/static/planning_poker", "pp-300.png")
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
