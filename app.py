@@ -68,8 +68,7 @@ def callback():
 
 @app.route('/planning_poker/images/<size>', methods=['GET'])
 def images(size):
-    app.logger.info("start")
-    return send_from_directory("/static/planning_poker", "pp-300.png")
+    return send_from_directory("/static/planning_poker", "pp-" + size +".png")
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
