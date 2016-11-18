@@ -9,7 +9,7 @@ import sys
 import tempfile
 from argparse import ArgumentParser
 
-from flask import Flask, request, abort, logging
+from flask import Flask, request, abort, logging, send_from_directory
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -66,9 +66,10 @@ def callback():
 
     return 'OK'
 
-@app.route("/planning_poker/images", methods=['POST'])
-def images():
-    pass
+@app.route('/planning_poker/images/<size>', methods=['GET'])
+def images(size):
+    app.logger.info("start")
+    return send_from_directory("./static/planning_poker", "pp-300.png")
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
@@ -328,7 +329,7 @@ if __name__ == "__main__":
         usage='Usage: python ' + __file__ + ' [--port <port>] [--help]'
     )
     arg_parser.add_argument('-p', '--port', default=8000, help='port')
-    arg_parser.add_argument('-d', '--debug', default=False, help='debug')
+    arg_parser.add_argument('-d', '--debug', default=True, help='debug')
     options = arg_parser.parse_args()
 
     # create tmp dir for download content
