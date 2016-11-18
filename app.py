@@ -25,7 +25,8 @@ from linebot.models import (
     CarouselTemplate, CarouselColumn, PostbackEvent,
     StickerMessage, StickerSendMessage, LocationMessage, LocationSendMessage,
     ImageMessage, VideoMessage, AudioMessage,
-    UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
+    UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent,
+    ImagemapSendMessage, MessageImagemapAction
 )
 
 app = Flask(__name__)
@@ -65,6 +66,9 @@ def callback():
 
     return 'OK'
 
+@app.route("/planning_poker/images", methods=['POST'])
+def images():
+    pass
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
@@ -87,6 +91,90 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text="Bot can't use profile API without user ID"))
+    elif text == 'poker':
+        imagemap_message = ImagemapSendMessage(
+            base_url='https://scrummasterbot.herokuapp.com/planning_poker/images',
+            alt_text='this is planning poker',
+            base_size=BaseSize(height=790, width=1040),
+            actions=[
+                MessageImagemapAction(
+                    text='selected_0',
+                    area=ImagemapArea(
+                        x=0, y=0, width=260, height=260
+                    )
+                ),
+                MessageImagemapAction(
+                    text='selected_1',
+                    area=ImagemapArea(
+                        x=260, y=0, width=515, height=260
+                    )
+                ),
+                MessageImagemapAction(
+                    text='selected_2',
+                    area=ImagemapArea(
+                        x=520, y=0, width=770, height=260
+                    )
+                ),
+                MessageImagemapAction(
+                    text='selected_3',
+                    area=ImagemapArea(
+                        x=720, y=0, width=1040, height=260
+                    )
+                ),
+                MessageImagemapAction(
+                    text='selected_4',
+                    area=ImagemapArea(
+                        x=0, y=260, width=260, height=520
+                    )
+                ),
+                MessageImagemapAction(
+                    text='selected_5',
+                    area=ImagemapArea(
+                        x=260, y=260, width=515, height=520
+                    )
+                ),
+                MessageImagemapAction(
+                    text='selected_6',
+                    area=ImagemapArea(
+                        x=520, y=260, width=770, height=520
+                    )
+                ),
+                MessageImagemapAction(
+                    text='selected_7',
+                    area=ImagemapArea(
+                        x=720, y=260, width=1040, height=520
+                    )
+                ),
+                MessageImagemapAction(
+                    text='selected_8',
+                    area=ImagemapArea(
+                        x=0, y=520, width=260, height=790
+                    )
+                ),
+                MessageImagemapAction(
+                    text='selected_9',
+                    area=ImagemapArea(
+                        x=260, y=520, width=515, height=790
+                    )
+                ),
+                MessageImagemapAction(
+                    text='selected_10',
+                    area=ImagemapArea(
+                        x=520, y=520, width=770, height=790
+                    )
+                ),
+                MessageImagemapAction(
+                    text='selected_11',
+                    area=ImagemapArea(
+                        x=720, y=520, width=1040, height=790
+                    )
+                )
+            ]
+        )
+        line_bot_api.reply_message(
+            event.reply_token,
+            imagemap_message)
+
     elif text == 'bye':
         if isinstance(event.source, SourceGroup):
             line_bot_api.reply_message(
