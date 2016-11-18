@@ -92,7 +92,7 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text="Bot can't use profile API without user ID"))
-    elif text == 'poker':
+    elif text == 'プラポ':
         imagemap_message = ImagemapSendMessage(
             base_url='https://scrummasterbot.herokuapp.com/planning_poker/images',
             alt_text='this is planning poker',
