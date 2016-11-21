@@ -74,6 +74,7 @@ def images(size):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
+    userId = event.source.user
     text = event.message.text
 
     if text == 'プラポ':
@@ -81,7 +82,7 @@ def handle_text_message(event):
             event.reply_token,
             generatePlanningPokerMessage())
     elif re.compile("0|1|2|3|5|8|13|20|40|全くわからん!|見積もれません!|休憩しましょ！").search(text):
-        vote = models.Poker(userId='susan', vote=text)
+        vote = models.Poker(userId=userId, vote=text)
         db.session.add(vote)
         db.session.commit()
 
