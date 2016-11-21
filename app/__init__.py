@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import errno
 import os
+import re
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -29,6 +30,8 @@ static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 app = Flask(__name__)
 app.config.from_object('config')
 db = SQLAlchemy(app)
+
+from app import models
 
 line_bot_api = LineBotApi(app.config['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(app.config['CHANNEL_SECRET'])
@@ -74,7 +77,10 @@ def handle_text_message(event):
         line_bot_api.reply_message(
             event.reply_token,
             generatePlanningPokerMessage())
-
+    elif re.compile("0|1|2|3|5|8|13|20|40|全くわからん!|見積もれません!|休憩しましょ！").search(text):
+        vote = models.Poker(userId='susan', vote=text)
+        db.session.add(vote)
+        db.session.commit()
 
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
@@ -179,7 +185,7 @@ def generatePlanningPokerMessage():
                 )
             ),
             MessageImagemapAction(
-                text='これは無理だわ。。。',
+                text='見積もれません!',
                 area=ImagemapArea(
                     x=520, y=520, width=770, height=790
                 )
