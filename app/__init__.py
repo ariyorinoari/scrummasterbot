@@ -13,6 +13,9 @@ from flask import Flask, request, abort, logging, send_from_directory
 from linebot import (
     LineBotApi, WebhookHandler,
 )
+from linebot.exceptions import (
+    InvalidSignatureError
+)
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
     SourceUser, SourceGroup, SourceRoom,
