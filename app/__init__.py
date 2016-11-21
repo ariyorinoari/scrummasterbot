@@ -74,7 +74,7 @@ def images(size):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    userId = event.source.user
+    userId = event.source.user_id
     text = event.message.text
 
     if text == 'プラポ':
