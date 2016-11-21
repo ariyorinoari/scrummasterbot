@@ -7,7 +7,7 @@ import os
 
 from flask_sqlalchemy import SQLAlchemy
 
-from flask import Flask, send_from_directory
+from flask import Flask, request, abort, logging, send_from_directory
 
 from linebot import (
     LineBotApi, WebhookHandler,
@@ -193,3 +193,6 @@ def generatePlanningPokerMessage():
         ]
     )
     return message
+
+# create tmp dir for download content
+make_static_tmp_dir()
