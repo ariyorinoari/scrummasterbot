@@ -78,6 +78,7 @@ def vote(pokerId, teamId, pointId):
     app.logger.info('Poker ID : ' + pokerId)
     app.logger.info('Team ID : ' + teamId)
     app.logger.info('Point ID : ' + pointId)
+    return 'OK'
 
 
 def getSourceId(source):
