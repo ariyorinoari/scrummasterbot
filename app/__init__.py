@@ -102,7 +102,7 @@ def handle_text_message(event):
 
     if text == 'プラポ':
         sourceId = getSourceId(event.source)
-        pokerId = cache.incr(POKER_ID_KEY)
+        pokerId = str(cache.incr(POKER_ID_KEY)).encode('utf-8')
         line_bot_api.reply_message(
             event.reply_token,
             generatePlanningPokerMessage(pokerId, sourceId))
