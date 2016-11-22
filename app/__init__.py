@@ -95,7 +95,8 @@ def getSourceId(source):
     else:
         abort(400)
 
-POKER_ID_KEY='poker_id'
+EXCLUSIVE_CONTROL_KEY = 'exclusive'
+POKER_ID_KEY = 'poker_id'
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
@@ -103,10 +104,10 @@ def handle_text_message(event):
 
     if text == 'プラポ':
         sourceId = getSourceId(event.source)
-        if cache.sismember(sourceId):
+        if cache.sismember(EXCLUSIVE_CONTROL_KEY, sourceId):
             pass
         else:
-            cache.sadd(sourceId)
+            cache.sadd(EXCLUSIVE_CONTROL_KEY, sourceId)
             pokerId = str(cache.incr(POKER_ID_KEY)).encode('utf-8')
             line_bot_api.reply_message(
                 event.reply_token,
