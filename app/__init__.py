@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import errno
 import os
 import re
+import time
 
 import redis
 
@@ -96,11 +97,13 @@ def getSourceId(source):
         abort(400)
 
 EXCLUSIVE_CONTROL_KEY = 'exclusive'
-POKER_ID_KEY = 'poker_id'
+EXCLUSIVE_CONTROL_KEY2 = 'exclusive2'
+VOTE_PATTERN = r"^#(\d+) (\d+)"
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     text = event.message.text
+    matchOB = re.match(VOTE_PATTERN, text)
 
     if text == 'プラポ':
         sourceId = getSourceId(event.source)
@@ -108,14 +111,23 @@ def handle_text_message(event):
             pass
         else:
             cache.sadd(EXCLUSIVE_CONTROL_KEY, sourceId)
-            pokerId = str(cache.incr(POKER_ID_KEY)).encode('utf-8')
+            pokerId = str(cache.incr(sourceId)).encode('utf-8')
             line_bot_api.reply_message(
                 event.reply_token,
                 generatePlanningPokerMessage(pokerId, sourceId))
-    elif re.compile("0|1|2|3|5|8|13|20|40|全くわからん!|見積もれません!|休憩しましょ！").search(text):
-        vote = models.Poker(userId=userId, vote=text)
-        db.session.add(vote)
-        db.session.commit()
+    elif matchOB is not None:
+        count = matchOB.group(1)
+        location = matchOB.group(2)
+        if cache.sismember(EXCLUSIVE_CONTROL_KEY2, sourceId):
+            cache.hincrby(text, location)
+        else:
+            cache.sadd(EXCLUSIVE_CONTROL_KEY2, sourceId)
+            cache.hincrby(text, location)
+            time.sleep(10)
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage('10秒経ったよー')
+            )
 
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
@@ -161,73 +173,73 @@ def generatePlanningPokerMessage(pokerId, teamId):
         base_size=BaseSize(height=790, width=1040),
         actions=[
             MessageImagemapAction(
-                text = pokerId + u'/' + teamId + u'/0',
+                text = u'#' + pokerId + u' 0',
                 area=ImagemapArea(
                     x=0, y=0, width=260, height=260
                 )
             ),
             MessageImagemapAction(
-                text = pokerId + u'/' + teamId + u'/1',
+                text = u'#' + pokerId + u' 1',
                 area=ImagemapArea(
                     x=260, y=0, width=515, height=260
                 )
             ),
             MessageImagemapAction(
-                text = pokerId + '/' + teamId + '/' + '2',
+                text = u'#' + pokerId + u' 2',
                 area=ImagemapArea(
                     x=520, y=0, width=770, height=260
                 )
             ),
             MessageImagemapAction(
-                text = pokerId + '/' + teamId + '/' + '3',
+                text = u'#' + pokerId + u' 3',
                 area=ImagemapArea(
                     x=720, y=0, width=1040, height=260
                 )
             ),
             MessageImagemapAction(
-                text = pokerId + '/' + teamId + '/' + '4',
+                text = u'#' + pokerId + u' 4',
                 area=ImagemapArea(
                     x=0, y=260, width=260, height=520
                 )
             ),
             MessageImagemapAction(
-                text = pokerId + '/' + teamId + '/' + '5',
+                text = u'#' + pokerId + u' 5',
                 area=ImagemapArea(
                     x=260, y=260, width=515, height=520
                 )
             ),
             MessageImagemapAction(
-                text = pokerId + '/' + teamId + '/' + '6',
+                text = u'#' + pokerId + u' 6',
                 area=ImagemapArea(
                     x=520, y=260, width=770, height=520
                 )
             ),
             MessageImagemapAction(
-                text = pokerId + '/' + teamId + '/' + '7',
+                text = u'#' + pokerId + u' 7',
                 area=ImagemapArea(
                     x=720, y=260, width=1040, height=520
                 )
             ),
             MessageImagemapAction(
-                text = pokerId + '/' + teamId + '/' + '8',
+                text = u'#' + pokerId + u' 8',
                 area=ImagemapArea(
                     x=0, y=520, width=260, height=790
                 )
             ),
             MessageImagemapAction(
-                text = pokerId + '/' + teamId + '/' + '9',
+                text = u'#' + pokerId + u' 9',
                 area=ImagemapArea(
                     x=260, y=520, width=515, height=790
                 )
             ),
             MessageImagemapAction(
-                text = pokerId + '/' + teamId + '/' + '10',
+                text = u'#' + pokerId + u' 10',
                 area=ImagemapArea(
                     x=520, y=520, width=770, height=790
                 )
             ),
             MessageImagemapAction(
-                text = pokerId + '/' + teamId + '/' + '11',
+                text = u'#' + pokerId + u' 11',
                 area=ImagemapArea(
                     x=720, y=520, width=1040, height=790
                 )
