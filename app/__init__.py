@@ -27,7 +27,7 @@ from linebot.models import (
     StickerMessage, StickerSendMessage, LocationMessage, LocationSendMessage,
     ImageMessage, VideoMessage, AudioMessage,
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent,
-    ImagemapSendMessage, MessageImagemapAction, BaseSize, ImagemapArea
+    ImagemapSendMessage, MessageImagemapAction, URIImagemapAction, BaseSize, ImagemapArea
 )
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
@@ -154,74 +154,74 @@ def generatePlanningPokerMessage(pokerId, teamId):
         alt_text='this is planning poker',# create tmp dir for download content
         base_size=BaseSize(height=790, width=1040),
         actions=[
-            MessageImagemapAction(
-                linkUri=server_url + pokerId + '/' + teamId + '/' + '0',
+            URIImagemapAction(
+                link_uri=server_url + pokerId + u'/' + teamId + u'/0',
                 area=ImagemapArea(
                     x=0, y=0, width=260, height=260
                 )
             ),
-            MessageImagemapAction(
-                linkUri=server_url + pokerId + '/' + teamId + '/' + '1',
+            URIImagemapAction(
+                link_uri=server_url + pokerId + u'/' + teamId + u'/1',
                 area=ImagemapArea(
                     x=260, y=0, width=515, height=260
                 )
             ),
-            MessageImagemapAction(
-                linkUri=server_url + pokerId + '/' + teamId + '/' + '2',
+            URIImagemapAction(
+                link_uri=server_url + pokerId + '/' + teamId + '/' + '2',
                 area=ImagemapArea(
                     x=520, y=0, width=770, height=260
                 )
             ),
-            MessageImagemapAction(
-                linkUri=server_url + pokerId + '/' + teamId + '/' + '3',
+            URIImagemapAction(
+                link_uri=server_url + pokerId + '/' + teamId + '/' + '3',
                 area=ImagemapArea(
                     x=720, y=0, width=1040, height=260
                 )
             ),
-            MessageImagemapAction(
-                linkUri=server_url + pokerId + '/' + teamId + '/' + '4',
+            URIImagemapAction(
+                link_uri=server_url + pokerId + '/' + teamId + '/' + '4',
                 area=ImagemapArea(
                     x=0, y=260, width=260, height=520
                 )
             ),
-            MessageImagemapAction(
-                linkUri=server_url + pokerId + '/' + teamId + '/' + '5',
+            URIImagemapAction(
+                link_uri=server_url + pokerId + '/' + teamId + '/' + '5',
                 area=ImagemapArea(
                     x=260, y=260, width=515, height=520
                 )
             ),
-            MessageImagemapAction(
-                linkUri=server_url + pokerId + '/' + teamId + '/' + '6',
+            URIImagemapAction(
+                link_uri=server_url + pokerId + '/' + teamId + '/' + '6',
                 area=ImagemapArea(
                     x=520, y=260, width=770, height=520
                 )
             ),
-            MessageImagemapAction(
-                linkUri=server_url + pokerId + '/' + teamId + '/' + '7',
+            URIImagemapAction(
+                link_uri=server_url + pokerId + '/' + teamId + '/' + '7',
                 area=ImagemapArea(
                     x=720, y=260, width=1040, height=520
                 )
             ),
-            MessageImagemapAction(
-                linkUri=server_url + pokerId + '/' + teamId + '/' + '8',
+            URIImagemapAction(
+                link_uri=server_url + pokerId + '/' + teamId + '/' + '8',
                 area=ImagemapArea(
                     x=0, y=520, width=260, height=790
                 )
             ),
-            MessageImagemapAction(
-                linkUri=server_url + pokerId + '/' + teamId + '/' + '9',
+            URIImagemapAction(
+                link_uri=server_url + pokerId + '/' + teamId + '/' + '9',
                 area=ImagemapArea(
                     x=260, y=520, width=515, height=790
                 )
             ),
-            MessageImagemapAction(
-                linkUri=server_url + pokerId + '/' + teamId + '/' + '10',
+            URIImagemapAction(
+                link_uri=server_url + pokerId + '/' + teamId + '/' + '10',
                 area=ImagemapArea(
                     x=520, y=520, width=770, height=790
                 )
             ),
-            MessageImagemapAction(
-                linkUri=server_url + pokerId + '/' + teamId + '/' + '11',
+            URIImagemapAction(
+                link_uri=server_url + pokerId + '/' + teamId + '/' + '11',
                 area=ImagemapArea(
                     x=720, y=520, width=1040, height=790
                 )
