@@ -105,7 +105,7 @@ def handle_text_message(event):
         sourceId = getSourceId(event.source)
         if cache.sismember(sourceId):
             pass
-        else
+        else:
             cache.sadd(sourceId)
             pokerId = str(cache.incr(POKER_ID_KEY)).encode('utf-8')
             line_bot_api.reply_message(
