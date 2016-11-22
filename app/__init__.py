@@ -6,6 +6,8 @@ import errno
 import os
 import re
 
+import redis
+
 from flask_sqlalchemy import SQLAlchemy
 
 from flask import Flask, request, abort, logging, send_from_directory
@@ -33,6 +35,7 @@ static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 app = Flask(__name__)
 app.config.from_object('config')
 db = SQLAlchemy(app)
+cache = redis.from_url(app.config['REDIS_URL'])
 
 from app import models
 
@@ -62,7 +65,6 @@ def callback():
         handler.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
-
     return 'OK'
 
 
@@ -71,16 +73,40 @@ def images(size):
     app.logger.info(size)
     return send_from_directory("static/planning_poker/", "pp-" + size +".png")
 
+@app.route('/vote/<pokerId>/<teamId>/<pointId>', methods=['GET'])
+def vote(pokerId, teamId, pointId):
+    app.logger.info('Poker ID : ' + pokerId)
+    app.logger.info('Team ID : ' + teamId)
+    app.logger.info('Point ID : ' + pointId)
+
+
+def getSourceId(source):
+    app.logger.info("source : " + source)
+    sourceType = source.type
+    if sourceType == 'user':
+        app.logger.info("user id : " + source.user_id)
+        return source.user_id
+    elif sourceType == 'group':
+        app.logger.info("group id : " + source.group_id)
+        return source.group_id
+    elif sourceType == 'room':
+        app.logger.info("room id : " + source.room_id)
+        return source.room_id
+    else:
+        abort(400)
+
+POKER_ID_KEY='poker_id'
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    userId = event.source.user_id
     text = event.message.text
 
     if text == 'プラポ':
+        sourceId = getSourceId(event.source)
+        pokerId = cache.incr(POKER_ID_KEY)
         line_bot_api.reply_message(
             event.reply_token,
-            generatePlanningPokerMessage())
+            generatePlanningPokerMessage(pokerId, sourceId))
     elif re.compile("0|1|2|3|5|8|13|20|40|全くわからん!|見積もれません!|休憩しましょ！").search(text):
         vote = models.Poker(userId=userId, vote=text)
         db.session.add(vote)
@@ -122,80 +148,81 @@ def handle_postback(event):
 def handle_beacon(event):
     pass
 
-def generatePlanningPokerMessage():
+def generatePlanningPokerMessage(pokerId, teamId):
+    server_url = 'https://scrummasterbot.herokuapp.com/vote/'
     message = ImagemapSendMessage(
         base_url='https://scrummasterbot.herokuapp.com/planning_poker/images',
         alt_text='this is planning poker',# create tmp dir for download content
         base_size=BaseSize(height=790, width=1040),
         actions=[
             MessageImagemapAction(
-                text='0',
+                linkUri=server_url + pokerId + '/' + teamId + '/' + '0',
                 area=ImagemapArea(
                     x=0, y=0, width=260, height=260
                 )
             ),
             MessageImagemapAction(
-                text='1',
+                linkUri=server_url + pokerId + '/' + teamId + '/' + '1',
                 area=ImagemapArea(
                     x=260, y=0, width=515, height=260
                 )
             ),
             MessageImagemapAction(
-                text='2',
+                linkUri=server_url + pokerId + '/' + teamId + '/' + '2',
                 area=ImagemapArea(
                     x=520, y=0, width=770, height=260
                 )
             ),
             MessageImagemapAction(
-                text='3',
+                linkUri=server_url + pokerId + '/' + teamId + '/' + '3',
                 area=ImagemapArea(
                     x=720, y=0, width=1040, height=260
                 )
             ),
             MessageImagemapAction(
-                text='5',
+                linkUri=server_url + pokerId + '/' + teamId + '/' + '4',
                 area=ImagemapArea(
                     x=0, y=260, width=260, height=520
                 )
             ),
             MessageImagemapAction(
-                text='8',
+                linkUri=server_url + pokerId + '/' + teamId + '/' + '5',
                 area=ImagemapArea(
                     x=260, y=260, width=515, height=520
                 )
             ),
             MessageImagemapAction(
-                text='13',
+                linkUri=server_url + pokerId + '/' + teamId + '/' + '6',
                 area=ImagemapArea(
                     x=520, y=260, width=770, height=520
                 )
             ),
             MessageImagemapAction(
-                text='20',
+                linkUri=server_url + pokerId + '/' + teamId + '/' + '7',
                 area=ImagemapArea(
                     x=720, y=260, width=1040, height=520
                 )
             ),
             MessageImagemapAction(
-                text='40',
+                linkUri=server_url + pokerId + '/' + teamId + '/' + '8',
                 area=ImagemapArea(
                     x=0, y=520, width=260, height=790
                 )
             ),
             MessageImagemapAction(
-                text='全くわからん!',
+                linkUri=server_url + pokerId + '/' + teamId + '/' + '9',
                 area=ImagemapArea(
                     x=260, y=520, width=515, height=790
                 )
             ),
             MessageImagemapAction(
-                text='見積もれません!',
+                linkUri=server_url + pokerId + '/' + teamId + '/' + '10',
                 area=ImagemapArea(
                     x=520, y=520, width=770, height=790
                 )
             ),
             MessageImagemapAction(
-                text='休憩しましょ！',
+                linkUri=server_url + pokerId + '/' + teamId + '/' + '11',
                 area=ImagemapArea(
                     x=720, y=520, width=1040, height=790
                 )
