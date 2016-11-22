@@ -81,7 +81,6 @@ def vote(pokerId, teamId, pointId):
 
 
 def getSourceId(source):
-    app.logger.info("source : " + source)
     sourceType = source.type
     if sourceType == 'user':
         app.logger.info("user id : " + source.user_id)
