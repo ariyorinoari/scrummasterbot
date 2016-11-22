@@ -103,10 +103,10 @@ VOTE_PATTERN = r"^#(\d+) (\d+)"
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     text = event.message.text
+    sourceId = getSourceId(event.source)
     matchOB = re.match(VOTE_PATTERN, text)
 
     if text == 'プラポ':
-        sourceId = getSourceId(event.source)
         if cache.sismember(EXCLUSIVE_CONTROL_KEY, sourceId):
             pass
         else:
