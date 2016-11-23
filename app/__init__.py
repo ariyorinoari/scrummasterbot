@@ -119,14 +119,26 @@ def handle_text_message(event):
         count = matchOB.group(1)
         location = matchOB.group(2)
         if cache.sismember(EXCLUSIVE_CONTROL_KEY2, sourceId):
-            cache.hincrby(text, location)
+            cache.hincrby(sourceId + count, location)
         else:
             cache.sadd(EXCLUSIVE_CONTROL_KEY2, sourceId)
-            cache.hincrby(text, location)
+            cache.hincrby(sourceId + count, location)
             time.sleep(10)
+            message = cache.hget(sourceId + count, 0) + '\n'
+            message += cache.hget(sourceId + count, 1) + '\n'
+            message += cache.hget(sourceId + count, 2) + '\n'
+            message += cache.hget(sourceId + count, 3) + '\n'
+            message += cache.hget(sourceId + count, 4) + '\n'
+            message += cache.hget(sourceId + count, 5) + '\n'
+            message += cache.hget(sourceId + count, 6) + '\n'
+            message += cache.hget(sourceId + count, 7) + '\n'
+            message += cache.hget(sourceId + count, 8) + '\n'
+            message += cache.hget(sourceId + count, 9) + '\n'
+            message += cache.hget(sourceId + count, 10) + '\n'
+            message += cache.hget(sourceId + count, 11) + '\n'
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage('10秒経ったよー')
+                TextSendMessage(message)
             )
 
 @handler.add(MessageEvent, message=LocationMessage)
