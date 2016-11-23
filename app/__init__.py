@@ -130,7 +130,7 @@ def handle_text_message(event):
             time.sleep(10)
             message =  'ポーカーの結果です。\n'
             for i in range(0, 12):
-                result = cache.hget(key, str(i))
+                result = cache.hget(vote_key, str(i))
                 if result is None:
                     result = 0
                 message += mapping[str(i)] + 'は' + str(result) + '人\n'
@@ -138,7 +138,6 @@ def handle_text_message(event):
                 event.reply_token,
                 TextSendMessage(message)
             )
-            cache.srem(EXCLUSIVE_CONTROL_KEY, sourceId)
             cache.srem(EXCLUSIVE_CONTROL_KEY2, sourceId)
 
 @handler.add(MessageEvent, message=LocationMessage)
