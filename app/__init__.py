@@ -140,6 +140,8 @@ def handle_text_message(event):
                 event.reply_token,
                 TextSendMessage(message)
             )
+            cache.srem(EXCLUSIVE_CONTROL_KEY, sourceId)
+            cache.srem(EXCLUSIVE_CONTROL_KEY2, sourceId)
 
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
