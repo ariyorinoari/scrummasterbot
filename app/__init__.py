@@ -44,6 +44,7 @@ line_bot_api = LineBotApi(app.config['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(app.config['CHANNEL_SECRET'])
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
+mapping = {"0":"0", "1":"1", "2":"2", "3":"3", "4":"5", "5":"8", "6":"13", "7":"20", "8":"40", "9":"?", "10":"∞", "11":"休憩しましょ。"}
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():
@@ -115,6 +116,8 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 generatePlanningPokerMessage(pokerId, sourceId))
+            time.sleep(20)
+            cache.srem(EXCLUSIVE_CONTROL_KEY, sourceId)
     elif matchOB is not None:
         count = matchOB.group(1)
         location = matchOB.group(2)
@@ -125,18 +128,12 @@ def handle_text_message(event):
             cache.sadd(EXCLUSIVE_CONTROL_KEY2, sourceId)
             cache.hincrby(vote_key, location)
             time.sleep(10)
-            message =  str(cache.hget(vote_key, 0)) + '\n'
-            message += str(cache.hget(vote_key, 1)) + '\n'
-            message += str(cache.hget(vote_key, 2)) + '\n'
-            message += str(cache.hget(vote_key, 3)) + '\n'
-            message += str(cache.hget(vote_key, 4)) + '\n'
-            message += str(cache.hget(vote_key, 5)) + '\n'
-            message += str(cache.hget(vote_key, 6)) + '\n'
-            message += str(cache.hget(vote_key, 7)) + '\n'
-            message += str(cache.hget(vote_key, 8)) + '\n'
-            message += str(cache.hget(vote_key, 9)) + '\n'
-            message += str(cache.hget(vote_key, 10)) + '\n'
-            message += str(cache.hget(vote_key, 11)) + '\n'
+            message =  'ポーカーの結果です。\n'
+            for i in range(0, 12):
+                result = cache.hget(key, str(i))
+                if result is None:
+                    result = 0
+                message += mapping[str(i)] + 'は' + str(result) + '人\n'
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(message)
