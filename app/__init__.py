@@ -118,24 +118,25 @@ def handle_text_message(event):
     elif matchOB is not None:
         count = matchOB.group(1)
         location = matchOB.group(2)
+        vote_key = sourceId + count
         if cache.sismember(EXCLUSIVE_CONTROL_KEY2, sourceId):
-            cache.hincrby(sourceId + count, location)
+            cache.hincrby(vote_key, location)
         else:
             cache.sadd(EXCLUSIVE_CONTROL_KEY2, sourceId)
-            cache.hincrby(sourceId + count, location)
+            cache.hincrby(vote_key, location)
             time.sleep(10)
-            message = cache.hget(sourceId + count, 0) + '\n'
-            message += cache.hget(sourceId + count, 1) + '\n'
-            message += cache.hget(sourceId + count, 2) + '\n'
-            message += cache.hget(sourceId + count, 3) + '\n'
-            message += cache.hget(sourceId + count, 4) + '\n'
-            message += cache.hget(sourceId + count, 5) + '\n'
-            message += cache.hget(sourceId + count, 6) + '\n'
-            message += cache.hget(sourceId + count, 7) + '\n'
-            message += cache.hget(sourceId + count, 8) + '\n'
-            message += cache.hget(sourceId + count, 9) + '\n'
-            message += cache.hget(sourceId + count, 10) + '\n'
-            message += cache.hget(sourceId + count, 11) + '\n'
+            message =  str(cache.hget(vote_key, 0)) + '\n'
+            message += str(cache.hget(vote_key, 1)) + '\n'
+            message += str(cache.hget(vote_key, 2)) + '\n'
+            message += str(cache.hget(vote_key, 3)) + '\n'
+            message += str(cache.hget(vote_key, 4)) + '\n'
+            message += str(cache.hget(vote_key, 5)) + '\n'
+            message += str(cache.hget(vote_key, 6)) + '\n'
+            message += str(cache.hget(vote_key, 7)) + '\n'
+            message += str(cache.hget(vote_key, 8)) + '\n'
+            message += str(cache.hget(vote_key, 9)) + '\n'
+            message += str(cache.hget(vote_key, 10)) + '\n'
+            message += str(cache.hget(vote_key, 11)) + '\n'
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(message)
