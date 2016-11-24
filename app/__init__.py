@@ -114,7 +114,9 @@ def handle_text_message(event):
                 event.reply_token,
                 generatePlanningPokerMessage(pokerId, sourceId))
             time.sleep(20)
+            app.logger.info('[poker]: wake up')
             cache.srem(EXCLUSIVE_CONTROL_KEY, sourceId)
+            app.logger.info('[poker]: end')
     elif matchOB is not None:
         count = matchOB.group(1)
         location = matchOB.group(2)
@@ -134,7 +136,7 @@ def handle_text_message(event):
                 event.reply_token,
                 TextSendMessage(message)
             )
-            cache.delete(EXCLUSIVE_CONTROL_KEY2, sourceId)
+            cache.delete(EXCLUSIVE_CONTROL_KEY2 + sourceId, sourceId)
         else:
             app.logger.info('[vote]: not locked')
             cache.hincrby(vote_key, location)
