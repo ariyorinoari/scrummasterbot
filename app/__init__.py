@@ -124,7 +124,6 @@ def handle_text_message(event):
         lock = cache.setnx(EXCLUSIVE_CONTROL_KEY2 + sourceId, sourceId)
         if lock:
             time.sleep(10)
-            app.logger.info('[vote]: locked')
             cache.hincrby(vote_key, location)
             message =  'ポーカーの結果です。\n'
             for i in range(0, 12):
@@ -136,7 +135,9 @@ def handle_text_message(event):
                 event.reply_token,
                 TextSendMessage(message)
             )
-            cache.delete(EXCLUSIVE_CONTROL_KEY2 + sourceId, sourceId)
+            app.logger.info('[vote]: locked')
+            cache.delete(EXCLUSIVE_CONTROL_KEY2 + sourceId)
+            app.logger.info('[vote]: unlocked')
         else:
             app.logger.info('[vote]: not locked')
             cache.hincrby(vote_key, location)
