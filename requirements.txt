@@ -5,4 +5,4 @@ flask-sqlalchemy
 sqlalchemy-migrate
 psycopg2
 redis
-
+gevent
