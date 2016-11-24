@@ -70,7 +70,7 @@ def callback():
     return 'OK'
 
 
-@app.route('images/planning_poker/<size>', methods=['GET'])
+@app.route('/images/planning_poker/<size>', methods=['GET'])
 def images(size):
     app.logger.info(size)
     return send_from_directory("static/planning_poker/", "pp-" + size +".png")
