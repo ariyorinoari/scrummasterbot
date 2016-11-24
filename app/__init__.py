@@ -117,8 +117,8 @@ def handle_text_message(event):
         vote_key = sourceId + count
         lock = cache.setnx(EXCLUSIVE_CONTROL_KEY2 + sourceId, sourceId)
         if lock:
-            cache.hincrby(vote_key, location)
             time.sleep(10)
+            cache.hincrby(vote_key, location)
             message =  'ポーカーの結果です。\n'
             for i in range(0, 12):
                 result = cache.hget(vote_key, str(i))
@@ -129,7 +129,7 @@ def handle_text_message(event):
                 event.reply_token,
                 TextSendMessage(message)
             )
-            cache.srem(EXCLUSIVE_CONTROL_KEY2, sourceId)
+            cache.delete(EXCLUSIVE_CONTROL_KEY2, sourceId)
         else:
             cache.hincrby(vote_key, location)
 
