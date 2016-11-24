@@ -115,24 +115,23 @@ def handle_text_message(event):
         count = matchOB.group(1)
         location = matchOB.group(2)
         vote_key = sourceId + count
-        if cache.sismember(EXCLUSIVE_CONTROL_KEY2, sourceId):
+        lock = cache.setnx(EXCLUSIVE_CONTROL_KEY2 + sourceId, sourceId)
+        if lock:
             cache.hincrby(vote_key, location)
+            time.sleep(10)
+            message =  'ポーカーの結果です。\n'
+            for i in range(0, 12):
+                result = cache.hget(vote_key, str(i))
+                if result is None:
+                    result = 0
+                message += mapping[str(i)] + 'は' + str(result) + '人\n'
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(message)
+            )
+            cache.srem(EXCLUSIVE_CONTROL_KEY2, sourceId)
         else:
-            rc = cache.setnx(EXCLUSIVE_CONTROL_KEY2, sourceId)
-            if rc:
-                cache.hincrby(vote_key, location)
-                time.sleep(10)
-                message =  'ポーカーの結果です。\n'
-                for i in range(0, 12):
-                    result = cache.hget(vote_key, str(i))
-                    if result is None:
-                        result = 0
-                    message += mapping[str(i)] + 'は' + str(result) + '人\n'
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    TextSendMessage(message)
-                )
-                cache.srem(EXCLUSIVE_CONTROL_KEY2, sourceId)
+            cache.hincrby(vote_key, location)
 
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
