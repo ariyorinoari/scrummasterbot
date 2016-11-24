@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import errno
+import logging
 import os
 import re
 import time
@@ -11,7 +12,7 @@ import redis
 
 from flask_sqlalchemy import SQLAlchemy
 
-from flask import Flask, request, abort, logging, send_from_directory
+from flask import Flask, request, abort, send_from_directory
 
 from linebot import (
     LineBotApi, WebhookHandler,
@@ -37,6 +38,9 @@ app = Flask(__name__)
 app.config.from_object('config')
 db = SQLAlchemy(app)
 cache = redis.from_url(app.config['REDIS_URL'])
+stream_handler = logging.StreamHandler()
+app.logger.addHandler(stream_handler)
+app.logger.setLevel(logging.INFO)
 
 from app import models
 
@@ -118,6 +122,7 @@ def handle_text_message(event):
         lock = cache.setnx(EXCLUSIVE_CONTROL_KEY2 + sourceId, sourceId)
         if lock:
             time.sleep(10)
+            app.logger.info('[vote]: locked')
             cache.hincrby(vote_key, location)
             message =  'ポーカーの結果です。\n'
             for i in range(0, 12):
@@ -131,6 +136,7 @@ def handle_text_message(event):
             )
             cache.delete(EXCLUSIVE_CONTROL_KEY2, sourceId)
         else:
+            app.logger.info('[vote]: not locked')
             cache.hincrby(vote_key, location)
 
 @handler.add(MessageEvent, message=LocationMessage)
