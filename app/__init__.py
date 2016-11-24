@@ -118,8 +118,8 @@ def handle_text_message(event):
         if cache.sismember(EXCLUSIVE_CONTROL_KEY2, sourceId):
             cache.hincrby(vote_key, location)
         else:
-            rc = cache.sadd(EXCLUSIVE_CONTROL_KEY2, sourceId)
-            if rc != 0:
+            rc = cache.setnx(EXCLUSIVE_CONTROL_KEY2, sourceId)
+            if rc:
                 cache.hincrby(vote_key, location)
                 time.sleep(10)
                 message =  'ポーカーの結果です。\n'
