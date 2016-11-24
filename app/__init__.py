@@ -70,17 +70,10 @@ def callback():
     return 'OK'
 
 
-@app.route('/planning_poker/images/<size>', methods=['GET'])
+@app.route('images/planning_poker/<size>', methods=['GET'])
 def images(size):
     app.logger.info(size)
     return send_from_directory("static/planning_poker/", "pp-" + size +".png")
-
-@app.route('/vote/<pokerId>/<teamId>/<pointId>', methods=['GET'])
-def vote(pokerId, teamId, pointId):
-    app.logger.info('Poker ID : ' + pokerId)
-    app.logger.info('Team ID : ' + teamId)
-    app.logger.info('Point ID : ' + pointId)
-    return 'OK'
 
 
 def getSourceId(source):
@@ -125,20 +118,21 @@ def handle_text_message(event):
         if cache.sismember(EXCLUSIVE_CONTROL_KEY2, sourceId):
             cache.hincrby(vote_key, location)
         else:
-            cache.sadd(EXCLUSIVE_CONTROL_KEY2, sourceId)
-            cache.hincrby(vote_key, location)
-            time.sleep(10)
-            message =  'ポーカーの結果です。\n'
-            for i in range(0, 12):
-                result = cache.hget(vote_key, str(i))
-                if result is None:
-                    result = 0
-                message += mapping[str(i)] + 'は' + str(result) + '人\n'
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(message)
-            )
-            cache.srem(EXCLUSIVE_CONTROL_KEY2, sourceId)
+            rc = cache.sadd(EXCLUSIVE_CONTROL_KEY2, sourceId)
+            if rc != 0:
+                cache.hincrby(vote_key, location)
+                time.sleep(10)
+                message =  'ポーカーの結果です。\n'
+                for i in range(0, 12):
+                    result = cache.hget(vote_key, str(i))
+                    if result is None:
+                        result = 0
+                    message += mapping[str(i)] + 'は' + str(result) + '人\n'
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(message)
+                )
+                cache.srem(EXCLUSIVE_CONTROL_KEY2, sourceId)
 
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location_message(event):
@@ -177,9 +171,8 @@ def handle_beacon(event):
     pass
 
 def generatePlanningPokerMessage(pokerId, teamId):
-    server_url = 'https://scrummasterbot.herokuapp.com/vote/'
     message = ImagemapSendMessage(
-        base_url='https://scrummasterbot.herokuapp.com/planning_poker/images',
+        base_url='https://scrummasterbot.herokuapp.com/images/planning_poker',
         alt_text='this is planning poker',# create tmp dir for download content
         base_size=BaseSize(height=790, width=1040),
         actions=[
