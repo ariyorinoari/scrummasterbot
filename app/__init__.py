@@ -107,12 +107,15 @@ def handle_text_message(event):
     matchOB = re.match(VOTE_PATTERN, text)
 
     if text == 'プラポ':
-        with Lock(cache, EXCLUSIVE_CONTROL_KEY + sourceId):
+        lock = Lock(cache, EXCLUSIVE_CONTROL_KEY + sourceId)
+        lock.lock()
+        if is_lock():
            pokerId = str(cache.incr(sourceId)).encode('utf-8')
            line_bot_api.reply_message(
                event.reply_token,
                generatePlanningPokerMessage(pokerId, sourceId))
            time.sleep(20)
+           lock.unlock()
     elif matchOB is not None:
         count = matchOB.group(1)
         location = matchOB.group(2)
