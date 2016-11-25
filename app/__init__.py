@@ -107,7 +107,7 @@ def handle_text_message(event):
     matchOB = re.match(VOTE_PATTERN, text)
 
     if text == 'プラポ':
-        with Lock(EXCLUSIVE_CONTROL_KEY):
+        with Lock(cache, EXCLUSIVE_CONTROL_KEY):
             if cache.sismember(EXCLUSIVE_CONTROL_KEY, sourceId):
                 pass
             else:
