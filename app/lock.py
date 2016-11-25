@@ -10,15 +10,10 @@ import lock
 
 class Lock(object):
 
-    def __init__(self, redis, key, expire=0):
-        # lock status
+    def __init__(self, redis, key):
         self._lock = False
-        # redis client
         self._redis = redis
-        # lock key
         self._key = key
-        # duration
-        self._expire = expire
 
 
     def _get_now(self):
@@ -32,16 +27,10 @@ class Lock(object):
     def lock(self):
         # すでにロック済みの場合
         if self._lock:
-            raise
+            raise DuplicateLockError()
 
-        self._lock = self._redis.setnx(self._key, self._get_now() + self._expire)
-        # ロックを獲得できなかった場合
-        if not self._lock:
-            previous_expire = self._redis.get(self._key)
-            if previous_expire is None:
-                raise
-            if previous_expire < self._get_now():
-                self._lock = self._r.getset(self._key, self._get_now() + self._expire)
+        self._lock = self._redis.setnx(self._key, self._get_now())
+        return self._lock
 
 
     def unlock(self):
@@ -52,10 +41,23 @@ class Lock(object):
         self._lock = False
 
 
+    def __enter__(self):
+        self.lock()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        if self._lock:
+            self.unlock()
+        return True if type is None else False
+
+
 class LockError(Exception):
     pass
 
 
 class HasNotLockError(LockError):
+    pass
+
+class DuplicateLockError(LockError):
     pass
 
