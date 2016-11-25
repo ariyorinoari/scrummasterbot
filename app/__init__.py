@@ -109,7 +109,7 @@ def handle_text_message(event):
     if text == 'プラポ':
         lock = Lock(cache, EXCLUSIVE_CONTROL_KEY + sourceId)
         lock.lock()
-        if is_lock():
+        if lock.is_lock():
            pokerId = str(cache.incr(sourceId)).encode('utf-8')
            line_bot_api.reply_message(
                event.reply_token,
