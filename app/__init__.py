@@ -119,16 +119,18 @@ def handle_text_message(event):
                 if result is None:
                     result = 0
                 message += mapping[str(i)] + 'は' + str(result) + '人\n'
-            confirm=ConfirmTemplate(
+            confirm_message = ConfirmTemplate(
                 text=message,
                 actions=[
                     MessageTemplateAction(label='もう１回', text='プラポ'),
                     MessageTemplateAction(label='やめる', text='やめる'),
                 ]
             )
+            template_message = TemplateSendMessage(
+                alt_text='結果', template=confirm_message)
             line_bot_api.reply_message(
                 event.reply_token,
-                confirm
+                template_message
             )
             mutex.unlock()
         else:
