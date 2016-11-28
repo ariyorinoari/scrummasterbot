@@ -48,10 +48,6 @@ class Lock(object):
     def __exit__(self, type, value, traceback):
         if self._lock:
             self.unlock()
-        if type is None:
-            return True
-        else:
-            traceback.print_exc()
         return True if type is None else False
 
 

@@ -112,7 +112,9 @@ def handle_text_message(event):
         if lock.is_lock():
             try:
                 time.sleep(10)
+                app.logger.info('Vote : Wake up')
                 redis.hincrby(vote_key, location)
+                app.logger.info('Vote : create message')
                 message =  'ポーカーの結果です。\n'
                 for i in range(0, 12):
                     result = redis.hget(vote_key, str(i))
