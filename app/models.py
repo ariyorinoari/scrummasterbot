@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from app import db
-
-class Poker():
+class Poker(object):
 
     def __init__(self, redis):
         self._redis = redis
