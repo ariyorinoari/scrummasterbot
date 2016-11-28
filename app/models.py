@@ -14,6 +14,9 @@ from linebot.models import (
 
 class Poker(object):
 
+    ELEMENT_WIDTH = 260
+    ELEMENT_HEIGHT = 263
+
     def __init__(self, redis, sourceId):
         self._redis = redis
         self._id = str(redis.incr(sourceId)).encode('utf-8')
@@ -22,80 +25,22 @@ class Poker(object):
         message = ImagemapSendMessage(
             base_url='https://scrummasterbot.herokuapp.com/images/planning_poker',
             alt_text='this is planning poker',
-            base_size=BaseSize(height=790, width=1040),
-            actions=[
-                MessageImagemapAction(
-                    text = u'#' + self._id + u' 0',
+            base_size=BaseSize(height=790, width=1040))
+        actions=[]
+        location=0
+        for i in range(0, 3):
+            for j in range(0, 4):
+                actions.append(MessageImagemapAction(
+                    text = u'#' + self._id + u' ' + str(location).encode('utf-8'),
                     area=ImagemapArea(
-                        x=0, y=0, width=260, height=260
+                        x=j * self.ELEMENT_WIDTH,
+                        y=i * self.ELEMENT_HEIGHT,
+                        width=(j + 1) * self.ELEMENT_WIDTH,
+                        height=(i + 1) * self.ELEMENT_HEIGHT
                     )
-                ),
-                MessageImagemapAction(
-                    text = u'#' + self._id + u' 1',
-                    area=ImagemapArea(
-                        x=260, y=0, width=515, height=260
-                    )
-                ),
-                MessageImagemapAction(
-                    text = u'#' + self._id + u' 2',
-                    area=ImagemapArea(
-                        x=520, y=0, width=770, height=260
-                    )
-                ),
-                MessageImagemapAction(
-                    text = u'#' + self._id + u' 3',
-                    area=ImagemapArea(
-                        x=720, y=0, width=1040, height=260
-                    )
-                ),
-                MessageImagemapAction(
-                    text = u'#' + self._id + u' 4',
-                    area=ImagemapArea(
-                        x=0, y=260, width=260, height=520
-                    )
-                ),
-                MessageImagemapAction(
-                    text = u'#' + self._id + u' 5',
-                    area=ImagemapArea(
-                        x=260, y=260, width=515, height=520
-                    )
-                ),
-                MessageImagemapAction(
-                    text = u'#' + self._id + u' 6',
-                    area=ImagemapArea(
-                        x=520, y=260, width=770, height=520
-                    )
-                ),
-                MessageImagemapAction(
-                    text = u'#' + self._id + u' 7',
-                    area=ImagemapArea(
-                        x=720, y=260, width=1040, height=520
-                    )
-                ),
-                MessageImagemapAction(
-                    text = u'#' + self._id + u' 8',
-                    area=ImagemapArea(
-                        x=0, y=520, width=260, height=790
-                    )
-                ),
-                MessageImagemapAction(
-                    text = u'#' + self._id + u' 9',
-                    area=ImagemapArea(
-                        x=260, y=520, width=515, height=790
-                    )
-                ),
-                MessageImagemapAction(
-                    text = u'#' + self._id + u' 10',
-                    area=ImagemapArea(
-                        x=520, y=520, width=770, height=790
-                    )
-                ),
-                MessageImagemapAction(
-                    text = u'#' + self._id + u' 11',
-                    area=ImagemapArea(
-                        x=720, y=520, width=1040, height=790
-                    )
-                )
-            ]
-        )
+                ))
+                ++location
+        message.actions = actions
         return message
+
+

@@ -92,7 +92,7 @@ VOTE_PATTERN = r"^#(\d+) (\d+)"
 def handle_text_message(event):
     text = event.message.text
     sourceId = getSourceId(event.source)
-    matchOB = re.match(VOTE_PATTERN, text)
+    matcher = re.match(VOTE_PATTERN, text)
 
     if text == 'プラポ':
         lock = Lock(redis, MUTEX_KEY + '_POKER_' + sourceId)
@@ -104,29 +104,31 @@ def handle_text_message(event):
                poker.generatePlanningPokerMessage())
            time.sleep(20)
            lock.unlock()
-    elif matchOB is not None:
-        count = matchOB.group(1)
-        location = matchOB.group(2)
-        app.logger.info('Vote : Input Data [' + count + ', ' + location + ']')
+    elif matcher is not None:
+        count = matcher.group(1)
+        location = matcher.group(2)
         vote_key = sourceId + count
-        app.logger.info('Vote : key [' + vote_key + ']')
         mutex = Lock(redis, MUTEX_KEY + '_VOTE_' + sourceId)
         mutex.lock()
         if mutex.is_lock():
             time.sleep(10)
-            app.logger.info('Vote : Wake up')
             redis.hincrby(vote_key, location)
-            app.logger.info('Vote : create message')
-            message =  'ポーカーの結果です。\n'
+            message =  'ポーカーの結果\n'
             for i in range(0, 12):
                 result = redis.hget(vote_key, str(i))
                 if result is None:
                     result = 0
                 message += mapping[str(i)] + 'は' + str(result) + '人\n'
-            app.logger.info('Reply Message: [' + message + ']')
+            confirm=ConfirmTemplate(
+                text=message,
+                actions=[
+                    MessageTemplateAction(label='もう１回', text='プラポ'),
+                    MessageTemplateAction(label='やめる', text='やめる'),
+                ]
+            )
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(message)
+                confirm
             )
             mutex.unlock()
         else:
