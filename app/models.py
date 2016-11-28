@@ -2,7 +2,7 @@
 
 class Poker(object):
 
-    def __init__(self, redis):
+    def __init__(self, redis, sourceId):
         self._redis = redis
         self._id = str(redis.incr(sourceId)).encode('utf-8')
 
