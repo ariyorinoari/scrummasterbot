@@ -110,19 +110,23 @@ def handle_text_message(event):
         vote_key = sourceId + count
         lock = Lock(redis, MUTEX_KEY + '_VOTE_' + sourceId)
         if lock.is_lock():
-            time.sleep(10)
-            redis.hincrby(vote_key, location)
-            message =  'ポーカーの結果です。\n'
-            for i in range(0, 12):
-                result = redis.hget(vote_key, str(i))
-                if result is None:
-                    result = 0
-                message += mapping[str(i)] + 'は' + str(result) + '人\n'
-            app.logger.info('Reply Message: [' + message + ']')
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(message)
-            )
+            try:
+                time.sleep(10)
+                redis.hincrby(vote_key, location)
+                message =  'ポーカーの結果です。\n'
+                for i in range(0, 12):
+                    result = redis.hget(vote_key, str(i))
+                    if result is None:
+                        result = 0
+                    message += mapping[str(i)] + 'は' + str(result) + '人\n'
+                app.logger.info('Reply Message: [' + message + ']')
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(message)
+                )
+            except:
+                import traceback
+                traceback.print_exc()
             lock.unlock()
         else:
             redis.hincrby(vote_key, location)
