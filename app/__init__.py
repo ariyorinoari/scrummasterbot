@@ -118,6 +118,7 @@ def handle_text_message(event):
                 if result is None:
                     result = 0
                 message += mapping[str(i)] + 'は' + str(result) + '人\n'
+            app.logger.info('Reply Message: [' + message + ']')
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(message)
