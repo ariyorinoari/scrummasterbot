@@ -98,7 +98,7 @@ def handle_text_message(event):
         lock = Lock(redis, MUTEX_KEY + '_POKER_' + sourceId)
         lock.lock()
         if lock.is_lock():
-           poker = Poker()
+           poker = Poker(redis)
            line_bot_api.reply_message(
                event.reply_token,
                poker.generatePlanningPokerMessage())
