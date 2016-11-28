@@ -111,6 +111,7 @@ def handle_text_message(event):
         vote_key = sourceId + count
         app.logger.info('Vote : key [' + vote_key + ']')
         mutex = Lock(redis, MUTEX_KEY + '_VOTE_' + sourceId)
+        mutex.lock()
         if mutex.is_lock():
             time.sleep(10)
             app.logger.info('Vote : Wake up')
