@@ -107,7 +107,9 @@ def handle_text_message(event):
     elif matchOB is not None:
         count = matchOB.group(1)
         location = matchOB.group(2)
+        app.logger.info('Vote : Input Data [' + count + ', ' + location + ']')
         vote_key = sourceId + count
+        app.logger.info('Vote : key [' + vote_key + ']')
         mutex = Lock(redis, MUTEX_KEY + '_VOTE_' + sourceId)
         if mutex.is_lock():
             time.sleep(10)
