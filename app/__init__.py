@@ -108,28 +108,24 @@ def handle_text_message(event):
         count = matchOB.group(1)
         location = matchOB.group(2)
         vote_key = sourceId + count
-        lock = Lock(redis, MUTEX_KEY + '_VOTE_' + sourceId)
-        if lock.is_lock():
-            try:
-                time.sleep(10)
-                app.logger.info('Vote : Wake up')
-                redis.hincrby(vote_key, location)
-                app.logger.info('Vote : create message')
-                message =  'ポーカーの結果です。\n'
-                for i in range(0, 12):
-                    result = redis.hget(vote_key, str(i))
-                    if result is None:
-                        result = 0
-                    message += mapping[str(i)] + 'は' + str(result) + '人\n'
-                app.logger.info('Reply Message: [' + message + ']')
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    TextSendMessage(message)
-                )
-            except:
-                import traceback
-                traceback.print_exc()
-            lock.unlock()
+        mutex = Lock(redis, MUTEX_KEY + '_VOTE_' + sourceId)
+        if mutex.is_lock():
+            time.sleep(10)
+            app.logger.info('Vote : Wake up')
+            redis.hincrby(vote_key, location)
+            app.logger.info('Vote : create message')
+            message =  'ポーカーの結果です。\n'
+            for i in range(0, 12):
+                result = redis.hget(vote_key, str(i))
+                if result is None:
+                    result = 0
+                message += mapping[str(i)] + 'は' + str(result) + '人\n'
+            app.logger.info('Reply Message: [' + message + ']')
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(message)
+            )
+            mutex.unlock()
         else:
             redis.hincrby(vote_key, location)
 
