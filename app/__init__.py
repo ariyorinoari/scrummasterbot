@@ -49,6 +49,7 @@ line_bot_api = LineBotApi(app.config['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(app.config['CHANNEL_SECRET'])
 
 mapping = {"0":"0", "1":"1", "2":"2", "3":"3", "4":"5", "5":"8", "6":"13", "7":"20", "8":"40", "9":"?", "10":"∞", "11":"Soy"}
+mapping2 = {"0":"0", "1":"1", "2":"2", "3":"3", "5":"4", "8":"5", "13":"6", "20":"7", "40":"8", "?":"9", "∞":"10", "Soy":"11"}
 
 
 @app.route("/callback", methods=['POST'])
@@ -86,7 +87,7 @@ def getSourceId(source):
         abort(400)
 
 MUTEX_KEY = 'MUTEX'
-VOTE_PATTERN = r"^#(\d+) (\d+)"
+VOTE_PATTERN = r"^#(\d+) (.+)"
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
@@ -112,7 +113,7 @@ def handle_text_message(event):
         mutex.lock()
         if mutex.is_lock():
             time.sleep(10)
-            redis.hincrby(vote_key, location)
+            redis.hincrby(vote_key, mapping2(location))
             message =  'ポーカーの結果\n'
             for i in range(0, 12):
                 result = redis.hget(vote_key, str(i))
@@ -134,6 +135,5 @@ def handle_text_message(event):
             )
             mutex.unlock()
         else:
-            redis.hincrby(vote_key, location)
-
+            redis.hincrby(vote_key, mapping2(location))
 

@@ -12,6 +12,8 @@ from linebot.models import (
     ImagemapSendMessage, MessageImagemapAction, MessageImagemapAction, BaseSize, ImagemapArea
 )
 
+mapping = {"0":"0", "1":"1", "2":"2", "3":"3", "4":"5", "5":"8", "6":"13", "7":"20", "8":"40", "9":"?", "10":"∞", "11":"Soy"}
+
 class Poker(object):
 
     ELEMENT_WIDTH = 260
@@ -31,7 +33,7 @@ class Poker(object):
         for i in range(0, 3):
             for j in range(0, 4):
                 actions.append(MessageImagemapAction(
-                    text = u'#' + self._id + u' ' + str(location).encode('utf-8'),
+                    text = u'#' + self._id + u' ' + mapping[str(location).encode('utf-8')],
                     area=ImagemapArea(
                         x=j * self.ELEMENT_WIDTH,
                         y=i * self.ELEMENT_HEIGHT,
