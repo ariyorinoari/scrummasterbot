@@ -39,7 +39,7 @@ class Poker(object):
                         height=(i + 1) * self.ELEMENT_HEIGHT
                     )
                 ))
-                ++location
+                location+=1
         message.actions = actions
         return message
 
