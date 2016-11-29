@@ -114,6 +114,7 @@ def genenate_voting_result_message(key):
     )
     template_message = TemplateSendMessage(
         alt_text='結果', template=confirm_message)
+    return template_message
 
 def generate_planning_poker_message(number):
     message = ImagemapSendMessage(
