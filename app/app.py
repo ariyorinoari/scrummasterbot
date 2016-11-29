@@ -103,15 +103,24 @@ def genenate_voting_result_message(key):
         if result is None:
             result = 0
         message += mapping[str(i)] + 'は' + str(result) + '人\n'
-    confirm_message = ConfirmTemplate(
-        text=message,
+    buttons_template = ButtonsTemplate(
+        title='ポーカー結果',
+        text='どうでしたか？',
         actions=[
+            URITemplateAction(
+                    label='Result', uri='https://scrummasterbot.herokuapp.com/images/planning_poker/300'),
             MessageTemplateAction(label='もう１回', text='プラポ'),
             MessageTemplateAction(label='やめる', text='やめる'),
-        ]
-    )
+    ])
+    #confirm_message = ConfirmTemplate(
+    #    text=message,
+    #    actions=[
+    #        MessageTemplateAction(label='もう１回', text='プラポ'),
+    #        MessageTemplateAction(label='やめる', text='やめる'),
+    #    ]
+    #)
     template_message = TemplateSendMessage(
-        alt_text='結果', template=confirm_message)
+        alt_text='結果', template=buttons_template)
     return template_message
 
 def generate_planning_poker_message(number):
