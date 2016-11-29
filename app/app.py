@@ -74,7 +74,6 @@ def handle_text_message(event):
         mutex = Mutex(redis, const.POKER_MUTEX_KEY_PREFIX+ sourceId)
         mutex.lock()
         if mutex.is_lock():
-           poker = Poker(redis, sourceId)
            number = str(redis.incr(sourceId)).encode('utf-8')
            line_bot_api.reply_message(
                event.reply_token,
