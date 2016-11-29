@@ -92,16 +92,16 @@ def handle_text_message(event):
             redis.hincrby(vote_key, location)
             line_bot_api.reply_message(
                 event.reply_token,
-                genenate_voting_result_message()
+                genenate_voting_result_message(vote_key)
             )
             mutex.unlock()
         else:
             redis.hincrby(vote_key, location)
 
-def genenate_voting_result_message():
+def genenate_voting_result_message(key):
     message =  'ポーカーの結果\n'
     for i in range(0, 12):
-        result = redis.hget(vote_key, str(i))
+        result = redis.hget(key, str(i))
         if result is None:
             result = 0
         message += mapping[str(i)] + 'は' + str(result) + '人\n'
