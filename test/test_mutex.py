@@ -4,79 +4,79 @@ import time
 import unittest
 from multiprocessing import Process
 
-from app.lock import Lock, DuplicateLockError, HasNotLockError
+from app.mutex import Mutex, DuplicateLockError, HasNotLockError
 
-class TestLock(unittest.TestCase):
+class TestMutex(unittest.TestCase):
 
-    _REDIS_URL = 'redis://192.168.99.100:6379'
-    _KEY = 'LOCK'
+    REDIS_URL = 'redis://192.168.99.100:6379'
+    KEY = 'LOCK'
 
     def setUp(self):
-        self.redis = redis.from_url(TestLock._REDIS_URL)
-        self.lock = Lock(self.redis, TestLock._KEY)
+        self.redis = redis.from_url(TestLock.REDIS_URL)
+        self.mutex= Mutex(self.redis, TestLock.KEY)
 
     def tearDown(self):
-        lock = self.lock
-        if lock.is_lock():
+        mutex = self.lock
+        if mutex.is_lock():
             self.redis.delete(TestLock._KEY)
 
     def test_initial_lock_state(self):
-        lock = self.lock
-        self.assertFalse(lock.is_lock())
+        mutex = self.mutex
+        self.assertFalse(mutex.is_lock())
 
     def test_lock_is_success(self):
-        lock = self.lock
-        lock.lock()
+        mutex = self.mutex
+        mutex.lock()
         result = self.redis.get(TestLock._KEY)
         self.assertIsNotNone(result)
 
     def test_duplicate_lock_error(self):
-        lock = self.lock
-        lock.lock()
+        mutex = self.mutex
+        mutex.lock()
         result = self.redis.get(TestLock._KEY)
         self.assertIsNotNone(result)
 
         with self.assertRaises(DuplicateLockError):
-            lock.lock()
+            mutex.lock()
 
     def test_is_lock(self):
-        lock = self.lock
-        lock.lock()
-        self.assertTrue(lock.is_lock())
-        lock.unlock()
-        self.assertFalse(lock.is_lock())
+        mutex = self.mutex
+        mutex.lock()
+        self.assertTrue(mutex.is_lock())
+        mutex.unlock()
+        self.assertFalse(mutex.is_lock())
 
     def test_unlock(self):
-        lock = self.lock
-        lock.lock()
-        self.assertTrue(lock.is_lock())
-        lock.unlock()
-        self.assertFalse(lock.is_lock())
+        mutex = self.mutex
+        mutex.lock()
+        self.assertTrue(mutex.is_lock())
+        mutex.unlock()
+        self.assertFalse(mutex.is_lock())
         result = self.redis.get(TestLock._KEY)
         self.assertIsNone(result)
 
     def test_has_not_lock_error(self):
-        lock = self.lock
+        mutex = self.mutex
 
         with self.assertRaises(HasNotLockError):
-            lock.unlock()
+            mutex.unlock()
 
     def test_multi_process(self):
-        lock = self.lock
+        mutex = self.mutex
 
         def lock_success(self):
             r = redis.from_url(TestLock._REDIS_URL)
-            l = Lock(self.redis, TestLock._KEY)
-            l.lock()
-            self.assertTrue(l.is_lock())
+            m = Mutex(self.redis, TestLock._KEY)
+            m.lock()
+            self.assertTrue(m.is_lock())
             time.sleep(10)
-            l.unlock()
+            m.unlock()
 
         def lock_error(self):
             r = redis.from_url(TestLock._REDIS_URL)
-            l = Lock(self.redis, TestLock._KEY)
-            l.lock()
-            self.assertFalse(l.is_lock())
+            m = Mutex(self.redis, TestLock._KEY)
+            m.lock()
+            self.assertFalse(m.is_lock())
 
         jobs = [
             Process(target=lock_success, args=(self, )),

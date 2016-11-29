@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import os
 import sys
 
@@ -27,3 +28,4 @@ SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 REDIS_URL = os.getenv('REDIS_URL', None)
 
+LOG_LEVEL = logging.INFO
