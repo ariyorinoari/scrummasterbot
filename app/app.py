@@ -85,7 +85,7 @@ def handle_text_message(event):
         count = matcher.group(1)
         location = matcher.group(2)
         vote_key = sourceId + count
-        mutex = Mutex(redis, const.MUTEX_KEY  + sourceId)
+        mutex = Mutex(redis, const.VOTE_MUTEX_KEY_PREFIX  + sourceId)
         mutex.lock()
         if mutex.is_lock():
             time.sleep(const.VOTE_MUTEX_TIMEOUT)
