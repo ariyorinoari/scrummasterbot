@@ -30,7 +30,6 @@ import const
 
 from line_util import *
 from mutex import Mutex
-from models import Poker
 
 app = Flask(__name__)
 app.config.from_object('config')
