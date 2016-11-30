@@ -119,8 +119,7 @@ def genenate_voting_result_message(key):
         text='そろいましたか？',
         thumbnail_image_url='https://scrummasterbot.herokuapp.com/images/tmp/' + tmp + '/result_11.png',
         actions=[
-            MessageTemplateAction(label='もう１回', text='プラポ'),
-            MessageTemplateAction(label='やめる', text='やめる'),
+            MessageTemplateAction(label='もう１回', text='プラポ')
     ])
     template_message = TemplateSendMessage(
         alt_text='結果', template=buttons_template)
