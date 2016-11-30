@@ -59,7 +59,7 @@ def callback():
 
 
 @app.route('/images/planning_poker/<size>', methods=['GET'])
-def images(size):
+def download_imagemap(size):
     filename = const.POKER_IMAGE_FILENAME.replace('{$0}', size)
     return send_from_directory("static/planning_poker/", filename)
 
@@ -106,7 +106,7 @@ def genenate_voting_result_message(key):
     buttons_template = ButtonsTemplate(
         title='ポーカー結果',
         text='どうでしたか？',
-        thumbnailImageUrl='https://scrummasterbot.herokuapp.com/images/planning_poker/300',
+        thumbnail_image_url='https://scrummasterbot.herokuapp.com/images/planning_poker/300',
         actions=[
             MessageTemplateAction(label='もう１回', text='プラポ'),
             MessageTemplateAction(label='やめる', text='やめる'),
