@@ -112,7 +112,7 @@ def genenate_voting_result_message(key):
         message += mapping[str(i)] + 'は' + str(result) + '人\n'
     buttons_template = ButtonsTemplate(
         title='ポーカー結果',
-        text=message,
+        text='そろいましたか？',
         thumbnail_image_url='https://scrummasterbot.herokuapp.com/images/planning_poker/300',
         actions=[
             MessageTemplateAction(label='もう１回', text='プラポ'),
