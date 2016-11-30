@@ -27,5 +27,8 @@ SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 REDIS_URL = os.getenv('REDIS_URL', None)
+if REDIS_URL is None:
+    print('Specify REDIS_URL as environment variable.')
+    sys.exit(1)
 
 LOG_LEVEL = logging.INFO

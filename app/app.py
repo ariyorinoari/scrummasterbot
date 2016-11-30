@@ -28,7 +28,7 @@ from linebot.models import (
 
 import const
 
-from line_util import *
+from utility import *
 from mutex import Mutex
 
 app = Flask(__name__)
@@ -38,7 +38,7 @@ redis = redis.from_url(app.config['REDIS_URL'])
 stream_handler = logging.StreamHandler()
 app.logger.addHandler(stream_handler)
 app.logger.setLevel(app.config['LOG_LEVEL'])
-
+make_static_dir(const.TMP_ROOT_PATH)
 line_bot_api = LineBotApi(app.config['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(app.config['CHANNEL_SECRET'])
 
@@ -60,8 +60,7 @@ def callback():
 
 @app.route('/images/planning_poker/<size>', methods=['GET'])
 def download_imagemap(size):
-    filename = const.POKER_IMAGE_FILENAME.replace('{$size}', size)
-    app.logger.info('requested imagemap file :' + filename)
+    filename = const.POKER_IMAGE_FILENAME.format(size)
     imagemap = send_from_directory(os.path.join(app.root_path, 'static/planning_poker/'),
             filename)
     return imagemap
@@ -104,27 +103,16 @@ with app.test_request_context():
 
 
 def genenate_voting_result_message(key):
-    message =  ''
-    for i in range(0, 12):
-        result = redis.hget(key, str(i))
-        if result is None:
-            result = 0
-        message += mapping[str(i)] + 'は' + str(result) + '人\n'
+    result = redis.hgetall(key)
+    tmp = generate_voting_result_image(data)
     buttons_template = ButtonsTemplate(
         title='ポーカー結果',
         text='そろいましたか？',
-        thumbnail_image_url='https://scrummasterbot.herokuapp.com/images/planning_poker/300',
+        thumbnail_image_url='https://scrummasterbot.herokuapp.com/images/tmp/' + tmp + '/result_11.png',
         actions=[
             MessageTemplateAction(label='もう１回', text='プラポ'),
             MessageTemplateAction(label='やめる', text='やめる'),
     ])
-    #confirm_message = ConfirmTemplate(
-    #    text=message,
-    #    actions=[
-    #        MessageTemplateAction(label='もう１回', text='プラポ'),
-    #        MessageTemplateAction(label='やめる', text='やめる'),
-    #    ]
-    #)
     template_message = TemplateSendMessage(
         alt_text='結果', template=buttons_template)
     return template_message
