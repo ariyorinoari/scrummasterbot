@@ -10,7 +10,7 @@ import redis
 import time
 
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, request, abort, send_from_directory
+from flask import Flask, request, abort, send_from_directory, url_for
 
 from linebot import (
     LineBotApi, WebhookHandler,
@@ -44,12 +44,12 @@ handler = WebhookHandler(app.config['CHANNEL_SECRET'])
 
 mapping = {"0":"0", "1":"1", "2":"2", "3":"3", "4":"5", "5":"8", "6":"13", "7":"20", "8":"40", "9":"?", "10":"∞", "11":"Soy"}
 
-@app.route("/callback", methods=['POST'])
+@app.route('/callback', methods=['POST'])
 def callback():
 
     signature = request.headers['X-Line-Signature']
     body = request.get_data(as_text=True)
-    app.logger.info("Request body: " + body)
+    app.logger.info('Request body: ' + body)
 
     try:
         handler.handle(body, signature)
@@ -60,14 +60,15 @@ def callback():
 
 @app.route('/images/planning_poker/<size>', methods=['GET'])
 def download_imagemap(size):
-    filename = const.POKER_IMAGE_FILENAME.replace('{$0}', size)
+    filename = const.POKER_IMAGE_FILENAME.replace('{$size}', size)
+    app.logger.info('requested imagemap file :' + filename)
     return send_from_directory("static/planning_poker/", filename)
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     text = event.message.text
     sourceId = getSourceId(event.source)
-    matcher = re.match(r"^#(\d+) (.+)", text)
+    matcher = re.match(r'^#(\d+) (.+)', text)
 
     if text == 'プラポ':
         mutex = Mutex(redis, const.POKER_MUTEX_KEY_PREFIX+ sourceId)
@@ -96,8 +97,12 @@ def handle_text_message(event):
         else:
             redis.hincrby(vote_key, location)
 
+with app.test_request_context():
+    print url_for('download_imagemap', size='240')
+
+
 def genenate_voting_result_message(key):
-    message =  'ポーカーの結果\n'
+    message =  ''
     for i in range(0, 12):
         result = redis.hget(key, str(i))
         if result is None:
@@ -105,7 +110,7 @@ def genenate_voting_result_message(key):
         message += mapping[str(i)] + 'は' + str(result) + '人\n'
     buttons_template = ButtonsTemplate(
         title='ポーカー結果',
-        text='どうでしたか？',
+        text=message,
         thumbnail_image_url='https://scrummasterbot.herokuapp.com/images/planning_poker/300',
         actions=[
             MessageTemplateAction(label='もう１回', text='プラポ'),
