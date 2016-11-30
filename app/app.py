@@ -87,18 +87,25 @@ def handle_text_message(event):
         count = matcher.group(1)
         location = matcher.group(2)
         vote_key = sourceId + count
-        mutex = Mutex(redis, const.VOTE_MUTEX_KEY_PREFIX  + sourceId)
-        mutex.lock()
-        if mutex.is_lock():
-            time.sleep(const.VOTE_MUTEX_TIMEOUT)
-            redis.hincrby(vote_key, location)
+        status = redis.hget(vote_key, 'status')
+        if status is None:
+            mutex = Mutex(redis, const.VOTE_MUTEX_KEY_PREFIX  + sourceId)
+            mutex.lock()
+            if mutex.is_lock():
+                time.sleep(const.VOTE_MUTEX_TIMEOUT)
+                redis.hincrby(vote_key, location)
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    genenate_voting_result_message(vote_key)
+                )
+                redis.hset(vote_key, 'status', 'complete')
+                mutex.unlock()
+            else:
+                redis.hincrby(vote_key, location)
+        else:
             line_bot_api.reply_message(
                 event.reply_token,
-                genenate_voting_result_message(vote_key)
-            )
-            mutex.unlock()
-        else:
-            redis.hincrby(vote_key, location)
+                TextMessage(text='#' + count + ' のポーカーは終了してまーす'))
 
 with app.test_request_context():
     print url_for('download_imagemap', size='240')
