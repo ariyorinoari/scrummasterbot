@@ -103,7 +103,7 @@ with app.test_request_context():
 
 
 def genenate_voting_result_message(key):
-    result = redis.hgetall(key)
+    data = redis.hgetall(key)
     tmp = generate_voting_result_image(data)
     buttons_template = ButtonsTemplate(
         title='ポーカー結果',
