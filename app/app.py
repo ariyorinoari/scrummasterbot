@@ -62,7 +62,8 @@ def callback():
 def download_imagemap(size):
     filename = const.POKER_IMAGE_FILENAME.replace('{$size}', size)
     app.logger.info('requested imagemap file :' + filename)
-    return send_from_directory("static/planning_poker/", filename)
+    return send_from_directory(os.path.join(app.root_path, 'static/planning_poker/'),
+            filename)
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
