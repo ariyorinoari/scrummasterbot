@@ -57,13 +57,15 @@ def callback():
         abort(400)
     return 'OK'
 
+@app.route('/images/tmp/<number>/<filename>', methods=['GET'])
+def download_result(number, filename):
+    return send_from_directory(os.path.join(app.root_path, 'static', 'tmp', number), filename)
 
 @app.route('/images/planning_poker/<size>', methods=['GET'])
 def download_imagemap(size):
     filename = const.POKER_IMAGE_FILENAME.format(size)
-    imagemap = send_from_directory(os.path.join(app.root_path, 'static/planning_poker/'),
+    return send_from_directory(os.path.join(app.root_path, 'static/planning_poker/'),
             filename)
-    return imagemap
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
