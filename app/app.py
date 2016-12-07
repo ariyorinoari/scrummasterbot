@@ -83,10 +83,10 @@ def handle_text_message(event):
         location = matcher.group(2)
         current = str(redis.incr(sourceId)).encode('utf-8')
         if number != current:
-            MESSAGE_INVALID_VOTE
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text=MESSAGE_INVALID_VOTE.format(number)))
+            return
         vote_key = sourceId + number 
         status = redis.hget(vote_key, 'status')
         if status is None:
@@ -126,7 +126,7 @@ def genenate_voting_result_message(key):
 def generate_planning_poker_message(number):
     message = ImagemapSendMessage(
         base_url='https://scrummasterbot.herokuapp.com/images/planning_poker',
-        alt_text='this is planning poker',
+        alt_text='planning poker',
         base_size=BaseSize(height=790, width=1040))
     actions=[]
     location=0
