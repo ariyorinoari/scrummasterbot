@@ -65,7 +65,7 @@ def download_imagemap(size):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    from models import PlanningPokerResult
+    #from models import PlanningPokerResult
     text = event.message.text
     sourceId = getSourceId(event.source)
     matcher = re.match(r'^#(\d+) (.+)', text)
