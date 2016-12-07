@@ -82,12 +82,11 @@ def handle_text_message(event):
         number = matcher.group(1)
         location = matcher.group(2)
         current = str(redis.incr(sourceId)).encode('utf-8')
-        if number is not current:
+        if number != current:
             MESSAGE_INVALID_VOTE
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text=MESSAGE_INVALID_VOTE.format(number)))
-
         vote_key = sourceId + number 
         status = redis.hget(vote_key, 'status')
         if status is None:
