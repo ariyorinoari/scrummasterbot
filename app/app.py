@@ -81,7 +81,7 @@ def handle_text_message(event):
     elif matcher is not None:
         number = matcher.group(1)
         location = matcher.group(2)
-        current = str(redis.incr(sourceId)).encode('utf-8')
+        current = redis.get(sourceId).encode('utf-8')
         if number != current:
             line_bot_api.reply_message(
                 event.reply_token,
