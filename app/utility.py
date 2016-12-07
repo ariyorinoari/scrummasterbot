@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 
-from const import *
 import errno
 import os
 from random import randint
 
+from const import *
 
 def make_static_dir(path):
     try:
