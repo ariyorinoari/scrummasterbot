@@ -35,11 +35,9 @@ redis = redis.from_url(app.config['REDIS_URL'])
 stream_handler = logging.StreamHandler()
 app.logger.addHandler(stream_handler)
 app.logger.setLevel(app.config['LOG_LEVEL'])
-make_static_dir(TMP_ROOT_PATH)
 line_bot_api = LineBotApi(app.config['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(app.config['CHANNEL_SECRET'])
 mapping = {"0":"0", "1":"1", "2":"2", "3":"3", "4":"5", "5":"8", "6":"13", "7":"20", "8":"40", "9":"?", "10":"∞", "11":"Soy"}
-
 
 @app.route('/callback', methods=['POST'])
 def callback():
@@ -81,9 +79,16 @@ def handle_text_message(event):
            time.sleep(POKER_MUTEX_TIMEOUT)
            mutex.unlock()
     elif matcher is not None:
-        count = matcher.group(1)
+        number = matcher.group(1)
         location = matcher.group(2)
-        vote_key = sourceId + count
+        current = str(redis.incr(sourceId)).encode('utf-8')
+        if number is not current:
+            MESSAGE_INVALID_VOTE
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextMessage(text=MESSAGE_INVALID_VOTE.format(number)))
+
+        vote_key = sourceId + number 
         status = redis.hget(vote_key, 'status')
         if status is None:
             mutex = Mutex(redis, VOTE_MUTEX_KEY_PREFIX  + sourceId)
@@ -102,7 +107,7 @@ def handle_text_message(event):
         else:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text=MESSAGE_END_POKER.format(count)))
+                TextMessage(text=MESSAGE_END_POKER.format(number)))
 
 
 def genenate_voting_result_message(key):
