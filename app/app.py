@@ -80,7 +80,7 @@ def handle_text_message(event):
            mutex.unlock()
     elif matcher is not None:
         number = matcher.group(1)
-        location = matcher.group(2)
+        value = matcher.group(2)
         current = redis.get(sourceId).encode('utf-8')
         if number != current:
             line_bot_api.reply_message(
@@ -91,6 +91,7 @@ def handle_text_message(event):
         status = redis.hget(vote_key, 'status')
         if status is None:
             mutex = Mutex(redis, VOTE_MUTEX_KEY_PREFIX  + sourceId)
+            location = mapping.keys()[mapping.values().index(value)]
             mutex.lock()
             if mutex.is_lock():
                 time.sleep(VOTE_MUTEX_TIMEOUT)
@@ -133,7 +134,7 @@ def generate_planning_poker_message(number):
     for i in range(0, 3):
         for j in range(0, 4):
             actions.append(MessageImagemapAction(
-                text = u'#' + number + u' ' + str(location).encode('utf-8'),
+                text = u'#' + number + u' ' + str(mapping[location]).encode('utf-8'),
                 area=ImagemapArea(
                     x=j * POKER_IMAGEMAP_ELEMENT_WIDTH,
                     y=i * POKER_IMAGEMAP_ELEMENT_HEIGHT,
