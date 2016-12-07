@@ -38,8 +38,8 @@ app.logger.setLevel(app.config['LOG_LEVEL'])
 make_static_dir(TMP_ROOT_PATH)
 line_bot_api = LineBotApi(app.config['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(app.config['CHANNEL_SECRET'])
-
 mapping = {"0":"0", "1":"1", "2":"2", "3":"3", "4":"5", "5":"8", "6":"13", "7":"20", "8":"40", "9":"?", "10":"∞", "11":"Soy"}
+
 
 @app.route('/callback', methods=['POST'])
 def callback():
