@@ -134,7 +134,7 @@ def generate_planning_poker_message(number):
     for i in range(0, 3):
         for j in range(0, 4):
             actions.append(MessageImagemapAction(
-                text = u'#' + number + u' ' + str(mapping[location]).encode('utf-8'),
+                text = u'#' + number + u' ' + mapping[str(location).encode('utf-8')],
                 area=ImagemapArea(
                     x=j * POKER_IMAGEMAP_ELEMENT_WIDTH,
                     y=i * POKER_IMAGEMAP_ELEMENT_HEIGHT,
