@@ -34,6 +34,9 @@ class Mutex(object):
         self._redis.delete(self._key)
         self._lock = False
 
+    def release(self):
+        self._redis.delete(self._key)
+
     def __enter__(self):
         self.lock()
         return self
@@ -42,6 +45,7 @@ class Mutex(object):
         if self._lock:
             self.unlock()
         return True if type is None else False
+
 
 class LockError(Exception):
     pass

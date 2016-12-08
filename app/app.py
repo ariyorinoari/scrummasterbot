@@ -69,15 +69,16 @@ def handle_text_message(event):
     matcher = re.match(r'^#(\d+) (.+)', text)
 
     if text == 'プラポ':
-        mutex = Mutex(redis, POKER_MUTEX_KEY_PREFIX+ sourceId)
-        mutex.lock()
-        if mutex.is_lock():
-           number = str(redis.incr(sourceId)).encode('utf-8')
-           line_bot_api.reply_message(
+        poker_mutex = Mutex(redis, POKER_MUTEX_KEY_PREFIX+ sourceId)
+        poker_mutex.lock()
+        if poker_mutex.is_lock():
+            number = str(redis.incr(sourceId)).encode('utf-8')
+            line_bot_api.reply_message(
                event.reply_token,
                generate_planning_poker_message(number))
-           time.sleep(POKER_MUTEX_TIMEOUT)
-           mutex.unlock()
+            time.sleep(POKER_MUTEX_TIMEOUT)
+            if poker_mutex.is_lock():
+                poker_mutex.unlock()
     elif matcher is not None:
         number = matcher.group(1)
         value = matcher.group(2)
@@ -90,10 +91,11 @@ def handle_text_message(event):
         vote_key = sourceId + number 
         status = redis.hget(vote_key, 'status')
         if status is None:
-            mutex = Mutex(redis, VOTE_MUTEX_KEY_PREFIX  + sourceId)
+            poker_mutex = Mutex(redis, POKER_MUTEX_KEY_PREFIX+ sourceId)
+            vote_mutex = Mutex(redis, VOTE_MUTEX_KEY_PREFIX  + sourceId)
             location = mapping.keys()[mapping.values().index(value)]
-            mutex.lock()
-            if mutex.is_lock():
+            vote_mutex.lock()
+            if vote_mutex.is_lock():
                 time.sleep(VOTE_MUTEX_TIMEOUT)
                 redis.hincrby(vote_key, location)
                 line_bot_api.reply_message(
@@ -101,7 +103,8 @@ def handle_text_message(event):
                     genenate_voting_result_message(vote_key)
                 )
                 redis.hset(vote_key, 'status', 'complete')
-                mutex.unlock()
+                vote_mutex.unlock()
+                poker_mutex.release()
             else:
                 redis.hincrby(vote_key, location)
         else:
