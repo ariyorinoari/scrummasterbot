@@ -49,6 +49,8 @@ def generate_voting_result_image(data):
     for i in range(0, 12):
         cmd = _generate_cmd(i, data, path)
         os.system(cmd)
+    resize_cmd = 'mogrify -resize 50% -unsharp 2x1.4+0.5+0 -colors 65 -quality 100 -verbose ' + path + '/result_11.png'
+    os.system(resize_cmd)
     return number
 
 def _generate_cmd(position, data, tmp):
