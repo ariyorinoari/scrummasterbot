@@ -13,5 +13,5 @@ IMG_PATH = os.path.join(os.path.dirname(__file__), 'static', 'planning_poker')
 TMP_ROOT_PATH = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 BG_FILE_PATH = os.path.join(os.path.dirname(__file__), 'static', 'planning_poker', 'vote_background.png')
 MESSAGE_END_POKER = '#{0}のポーカーは終了してまーす'
-MESSAGE_INVALID_VOTE = '#{0}のポーカーは無効でーす'
+MESSAGE_INVALID_VOTE = '#{0}のポーカーはないですよ。手入力した？'
 
